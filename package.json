@@ -1,23 +1,51 @@
 {
-  "name": "next-2",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.0.4"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.0.1",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4"
-  }
+     "name": "next-2",
+     "version": "0.1.0",
+     "private": true,
+     "scripts": {
+          "dev": "next dev",
+          "build": "next build",
+          "start": "next start",
+          "lint": "next lint"
+     },
+     "engines": {
+          "node": ">=12.5.0",
+          "yarn": ">=1.17.3"
+     },
+     "dependencies": {
+          "@consumet/extensions": "github:consumet/consumet.ts",
+          "@fastify/cors": "^8.2.0",
+          "@nextui-org/react": "^2.2.9",
+          "@types/fastify-cors": "^2.1.0",
+          "@types/node": "^18.11.17",
+          "@types/ws": "^8.5.3",
+          "axios": "^1.0.0",
+          "chalk": "4.1.2",
+          "cheerio": "1.0.0-rc.12",
+          "cloudscraper": "^4.6.0",
+          "dotenv": "^16.0.3",
+          "fastify": "^4.10.2",
+          "fastify-cors": "^6.1.0",
+          "framer-motion": "^10.17.9",
+          "fs": "^0.0.1-security",
+          "ioredis": "^5.2.4",
+          "net": "^1.0.2",
+          "next": "14.0.4",
+          "react": "^18",
+          "react-dom": "^18",
+          "reconnecting-websocket": "^4.4.0",
+          "tls": "^0.0.1",
+          "ts-node": "^10.9.1",
+          "typescript": "5.2.2",
+          "ws": "^8.8.1"
+     },
+     "devDependencies": {
+          "autoprefixer": "^10.0.1",
+          "eslint": "^8",
+          "eslint-config-next": "14.0.4",
+          "nodemon": "3.0.1",
+          "postcss": "^8",
+          "prettier": "^3.0.0",
+          "tailwindcss": "^3.3.0"
+     }
 }
