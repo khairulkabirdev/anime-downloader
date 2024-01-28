@@ -1,21 +1,39 @@
 // /api/getlinks/route.ts
-import { ANIME } from "@consumet/extensions";
+import { ANIME, ISource, StreamingServers } from "@consumet/extensions";
 
-const getLinks = async (id: string) => {
-    const gogoanime = new ANIME.Gogoanime();
-    const links = await gogoanime.fetchEpisodeSources(id);
-    return links;
+const getLinks = async (id: string, server: string) => {
+  const gogoanime = new ANIME.Gogoanime();
+  let links;
+
+  switch (server) {
+      case "gogocdn":
+          links = await gogoanime.fetchEpisodeSources(id, StreamingServers.GogoCDN);
+          break;
+      case "streamsb":
+          links = await gogoanime.fetchEpisodeSources(id, StreamingServers.StreamSB);
+          break;
+      case "vidstreaming":
+          links = await gogoanime.fetchEpisodeSources(id, StreamingServers.VidStreaming);
+          break;
+      default:
+          links = await gogoanime.fetchEpisodeSources(id, StreamingServers.GogoCDN);
+          break;
+  }
+
+  return links;
 };
 
+
 export async function POST(req: Request) {
-    const { id } = await req.json();
+    const { id , server} = await req.json();
+  
 
     if (!id) {
         return new Response("Invalid request: ID is missing", { status: 400 });
     }
 
     try {
-        const links = await getLinks(id);
+        const links = await getLinks(id,server);
         return new Response(JSON.stringify(links), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
         console.error("Error fetching links:", error);

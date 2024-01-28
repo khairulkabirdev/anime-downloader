@@ -1,7 +1,7 @@
 "use client"
 import Image from 'next/image'
 import { useState, useEffect } from 'react';
-import {Progress,Textarea,Input,Button,Select, SelectSection, SelectItem} from "@nextui-org/react";
+import {Progress,Textarea,Input,Button,Select, SelectSection , SelectItem} from "@nextui-org/react";
 import { ANIME } from "@consumet/extensions"
 
 import { StreamingServers } from '@consumet/extensions/dist/models';
@@ -9,6 +9,7 @@ import { StreamingServers } from '@consumet/extensions/dist/models';
 
 
 export default function Home() {
+  const [progressValue, setProgressValue] = useState(0);
   const [anime, setAnime] = useState();
   const [nimesearch, setSearch] = useState([]);
   const [name, setName] = useState('');
@@ -18,7 +19,10 @@ export default function Home() {
   const [endEp, setEndEp] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [ epLink, setEpLink] = useState('');
-  
+  const [isLoading, setIsLoading] = useState(false); 
+  const [copied, setCopied] = useState(false);
+
+
 
 useEffect(() => {
   fetchData(name); 
@@ -62,10 +66,10 @@ const handleOptionClick = (id) => {
 
 
   const qulitys = [
-    { value: '360', label: '360' },
-    { value: '480', label: '480' },
-    { value: '720', label: '720' },
-    { value: '1080', label: '1080' },
+    { value: '360p', label: '360' },
+    { value: '480p', label: '480' },
+    { value: '720p', label: '720' },
+    { value: '1080p', label: '1080' },
     // Add more animals as needed
   ];
 
@@ -74,7 +78,12 @@ const handleOptionClick = (id) => {
   };
 
 
-  const fetchData = async () => {
+
+
+
+
+ 
+  const handleGetLinks = async () => {
     if (!anime) {
       setErrorMessage('Please fill in the anime name');
       return;
@@ -94,47 +103,79 @@ const handleOptionClick = (id) => {
       setErrorMessage('Please select a quality');
       return;
     }
-    
-    
-    
-    // Clear any previous error messages
+    setEpLink('');
+  
     setErrorMessage('');
-  
-    
-    
-  
-    // Fetch episode sources
-  };
-
-
-
-
-
- 
-  const handleGetLinks = async ()  => {
+    setIsLoading(true);
     try {
-      const episodeID = 'maps-episode-1';
-      const url = '/api/getlinks';
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // Specify content type as JSON
-        },
-        body: JSON.stringify({ id: episodeID }), // Send the id in the request body
-      });
-    
-      const responseData = await response.json();
-      console.log(responseData);
+
+      let newEpLinks = ''; // Variable to store new links
+      let totalEpisodes = endEp - startEp + 1; // Calculate total number of episodes
+      let linksFetched = 0;
+
+      // Loop through each episode from startEp to endEp
+      for (let episodeNumber = startEp; episodeNumber <= endEp; episodeNumber++) {
+        const episodeID = `${anime}-episode-${episodeNumber}`;
+       
+        const url = '/api/getlinks';
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: episodeID, server: selectedAnimal }),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch links');
+        }
+  
+        const responseData = await response.json();
+        console.log('Response Data:', responseData);
+  
+        // Filter sources based on selected quality
+        const filteredSources = responseData.sources.filter(source => source.quality === selectedQualaty);
+  
+        if (filteredSources.length > 0) {
+          // Get the URL of the first matching quality
+          const selectedQualityUrl = filteredSources[0].url;
+          newEpLinks += selectedQualityUrl + '\n';
+          setEpLink(prevLinks => prevLinks + selectedQualityUrl + '\n');
+          console.log('Selected Quality URL:', selectedQualityUrl);
+          linksFetched++; // Increment counter for links fetched
+          setProgressValue((linksFetched / totalEpisodes) * 100); 
+          // You can further process the URL as per your requirements
+        } else {
+          console.error('Selected quality not found in the response');
+        }
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error('Error making POST request:', error.message);
+      setIsLoading(false); 
     }
   };
+
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(epLink)
+      .then(() => {
+        setCopied(true); // Set copied state to true
+        setTimeout(() => {
+          setCopied(false); // Reset copied state after 3 seconds
+        }, 3000);
+      })
+      .catch(error => {
+        console.error('Failed to copy text: ', error);
+      });
+  };
+  
 
   return (
     <main className=" flex flex-col  min-h-screen items-center justify-center mx-auto">    
     {errorMessage && <p>{errorMessage}</p>}  
     <div className="flex flex-col gap-2 justify-center mx-auto  ">
-      <div className="flex  flex-col items-center justify-center p-2  mx-auto  ">
+      <div className="flex  flex-col items-center justify-center p-2  mx-auto  w-full ">
           <Input
             className='w-80 flex items-center justify-end flex-row-reverse'
             name='anime_name'
@@ -149,7 +190,7 @@ const handleOptionClick = (id) => {
             }
           />
          {nimesearch.length > 0 && (
-            <div className='flex flex-col items-center justify-center p-4 mx-auto'>
+            <div className='overflow-y-auto w-80 max-h-80 flex flex-col  justify-start min-w-full p-4 mx-auto'>
               {nimesearch.map((item) => (
                 <div key={item.id} onClick={() => handleOptionClick(item.id)} className="flex items-center m-3 p-2 rounded-lg">
                   <img src={item.image} alt={item.title} className="w-10 h-10 rounded-full mr-4" />
@@ -225,9 +266,24 @@ const handleOptionClick = (id) => {
       </Button>  
     </div>
 
+    <div className='flex  flex-col items-center justify-center  w-full'>
+    { isLoading && 
+
+     <Progress
+      aria-label="Downloading..."
+      size="lg"
+      value={progressValue}
+      color="success"
+      showValueLabel={true}
+      className="max-w-lg w-full"
+      />
+
+    }   
+    
+    </div>
+
     <div  className='flex flex-col w-80 '>
         <Textarea
-          isDisabled
           label="links"
           variant="bordered"
           labelPlacement="outside"
@@ -238,9 +294,9 @@ const handleOptionClick = (id) => {
          
         />
         <div className='flex justify-items-center justify-end pt-4'>
-        <Button color="primary"  className='w-50' variant="bordered">
-          copy links
-        </Button>  
+        <Button color="primary" className='w-50' variant="bordered" onClick={handleCopy}>
+          {copied ? 'Copied!' : 'Copy links'}
+        </Button>
         </div>
         
         
