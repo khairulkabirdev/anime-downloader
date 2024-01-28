@@ -1,19 +1,24 @@
-'use server'
-// /api/hello/routeModule.ts
+// /api/getlinks/route.ts
 import { ANIME } from "@consumet/extensions";
-const getlink = async (id: string) => {
+
+const getLinks = async (id: string) => {
     const gogoanime = new ANIME.Gogoanime();
-    // const links = await gogoanime.fetchEpisodeSources("one-piece-episode-1022");
     const links = await gogoanime.fetchEpisodeSources(id);
     return links;
 };
-  
-export async function POST(req: Request) {
-  const gogoanime = new ANIME.Gogoanime();
-  const body = await req.json();
-  const { id } = body;
-  const link = await getlink(id); // Call the function with await
 
-//   console.log(id);
-  return new Response(JSON.stringify(link));
+export async function POST(req: Request) {
+    const { id } = await req.json();
+
+    if (!id) {
+        return new Response("Invalid request: ID is missing", { status: 400 });
+    }
+
+    try {
+        const links = await getLinks(id);
+        return new Response(JSON.stringify(links), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    } catch (error) {
+        console.error("Error fetching links:", error);
+        return new Response("Internal server error", { status: 500 });
+    }
 }
