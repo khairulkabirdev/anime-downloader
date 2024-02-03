@@ -1,5 +1,5 @@
 // /api/getlinks/route.ts
-import { ANIME, ISource, StreamingServers } from "@consumet/extensions";
+import { ANIME, ISource, StreamingServers } from "@anime-search/extension-of-anime";
 
 const getLinks = async (id: string, server: string) => {
   const gogoanime = new ANIME.Gogoanime();

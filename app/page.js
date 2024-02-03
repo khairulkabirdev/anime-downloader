@@ -2,9 +2,9 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react';
 import {Progress,Textarea,Input,Button,Select, SelectSection , SelectItem} from "@nextui-org/react";
-import { ANIME } from "@consumet/extensions"
+import { ANIME } from "@anime-search/extension-of-anime"
 
-import { StreamingServers } from '@consumet/extensions/dist/models';
+import { StreamingServers } from '@anime-search/extension-of-anime/dist/models';
 
 
 
