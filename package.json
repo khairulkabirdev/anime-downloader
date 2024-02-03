@@ -13,7 +13,7 @@
           "yarn": ">=1.17.3"
      },
      "dependencies": {
-          "@consumet/extensions": "github:consumet/consumet.ts",
+          "@anime-search/extension-of-anime": "^1.5.7",
           "@fastify/cors": "^8.2.0",
           "@nextui-org/button": "2.0.26",
           "@nextui-org/code": "2.0.24",
